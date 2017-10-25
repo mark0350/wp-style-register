@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Http\Controllers\WpAuth;
+
+
+use App\Events\UserRegistered;
+use Illuminate\Auth\Events\Registered;
+use App\Http\Controllers\Controller;
+use App\User;
+use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
+class RegisterController extends Controller
+{
+
+	protected $redirectTo = '/login';
+
+    public function showRegistrationForm()
+    {
+        return view('auth.register');
+    }
+
+    public function register(Request $request){
+
+        $this->validator($request->all())->validate();
+
+        $userPayload = array_merge($request->all(), ['password'=>Str::random(10)]);
+
+        event(new UserRegistered($user = $this->create($userPayload)));
+
+	    return $this->registered($request, $user)?:redirect($this->redirectPath())->withErrors('Please check your email to reset your password');
+
+    }
+
+    protected function registered(){
+
+    }
+
+    protected function redirectPath(){
+    	if(method_exists($this, 'redirectTo')){
+    		return $this->redirectTo();
+	    }
+
+	    return property_exists($this, 'redirectTo')?$this->redirectTo:'/home';
+    }
+
+    protected function validator(array $data){
+        return Validator::make($data, [
+            'loginName' => 'required|string|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',
+        ]);
+    }
+
+
+    protected function create(array $data){
+        $user = User::create(
+          [
+              'loginName' => $data['loginName'],
+              'email' => $data['email'],
+              'password' => bcrypt($data['password']),
+
+          ]
+        );
+
+        return $user;
+    }
+
+
+}
