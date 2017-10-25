@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: markhe
- * Date: 2017-10-15
- * Time: 3:15 PM
- */
 
-namespace App\WpStyleRegister;
+namespace WpStyleRegister;
 
 
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;

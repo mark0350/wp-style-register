@@ -1,6 +1,6 @@
 <?php
 
-namespace App\WpStyleRegister;
+namespace WpStyleRegister;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\DetectsApplicationNamespace;
