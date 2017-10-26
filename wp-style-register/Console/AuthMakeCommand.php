@@ -30,22 +30,29 @@ class AuthMakeCommand extends Command
      *
      * @var array
      */
-    protected $views = [
-        'Wp-auth/login.stub' => 'auth/login.blade.php',
-        'Wp-auth/register.stub' => 'auth/register.blade.php',
-        'Wp-auth/passwords/email.stub' => 'auth/passwords/email.blade.php',
-        'Wp-auth/passwords/reset.stub' => 'auth/passwords/reset.blade.php',
-        'layouts/app.stub' => 'layouts/app.blade.php',
-        'home.stub' => 'home.blade.php',
+	protected $views = [
+		'Wp-auth/login.stub'           => 'auth/login.blade.php',
+		'Wp-auth/register.stub'        => 'auth/register.blade.php',
+		'Wp-auth/passwords/email.stub' => 'auth/passwords/email.blade.php',
+		'Wp-auth/passwords/reset.stub' => 'auth/passwords/reset.blade.php',
+		'layouts/app.stub'             => 'layouts/app.blade.php',
+		'home.stub' => 'home.blade.php',
     ];
 
-    protected $controllers = [
-        'HomeController.stub' => 'HomeController.php',
-	    'Wp-auth/ForgotPasswordController.stub' => 'Wp-auth/ForgotPasswordController.php',
-	    'Wp-auth/LoginController.stub' => 'Wp-auth/LoginController.php',
-	    'Wp-auth/RegisterController.stub' => 'Wp-auth/RegisterController.php',
-	    'Wp-auth/ResetPasswordController.stub' => 'Wp-auth/ResetPasswordController.php'
-    ];
+	protected $appFiles = [
+		'controllers/HomeController.stub'                   => 'Http/Controllers/HomeController.php',
+		'controllers/Wp-auth/ForgotPasswordController.stub' => 'Http/Controllers/Wp-auth/ForgotPasswordController.php',
+		'controllers/Wp-auth/LoginController.stub'          => 'Http/Controllers/Wp-auth/LoginController.php',
+		'controllers/Wp-auth/RegisterController.stub'       => 'Http/Controllers/Wp-auth/RegisterController.php',
+		'controllers/Wp-auth/ResetPasswordController.stub'  => 'Http/Controllers/Wp-auth/ResetPasswordController.php',
+		'listeners/SendRegisteredNotification.stub'         => 'Listeners/SendRegisteredNotification.php',
+		'events/UserRegistered.stub'                        => 'Events/UserRegistered.php',
+		'notifications/RegisterNotification.stub'           => 'Notifications/RegisterNotification.php',
+		'models/User.stub'                                  => 'User.php',
+
+	];
+
+
 
     /**
      * Execute the console command.
@@ -60,7 +67,7 @@ class AuthMakeCommand extends Command
 
         if (! $this->option('views')) {
 
-        	$this->exportControllers();
+        	$this->exportAppFiles();
 
             file_put_contents(
                 base_path('routes/web.php'),
@@ -68,30 +75,15 @@ class AuthMakeCommand extends Command
                 FILE_APPEND
             );
 
-            file_put_contents(
-                app_path('Listeners/SendRegisteredNotification.php'),
-                file_get_contents(__DIR__.'/stubs/make/listeners/SendRegisteredNotification.stub')
-            );
 
-	        file_put_contents(
-		        app_path('Events/UserRegistered.php'),
-		        file_get_contents(__DIR__.'/stubs/make/events/UserRegistered.stub')
-	        );
-
-	        file_put_contents(
-		        app_path('Notifications/RegisterNotification.php'),
-		        file_get_contents(__DIR__.'/stubs/make/notifications/RegisterNotification.stub')
-	        );
-
-	        file_put_contents(
-	            app_path('User.php'),
-                file_get_contents(__DIR__.'/stubs/make/models/User.stub')
-            );
-
-	        file_put_contents(
-	            database_path('migrations/2014_10_12_000000_create_users_table.php'),
-                file_get_contents(__DIR__.'/stubs/make/migrations/create_users_table.stub')
-            );
+	        if (file_exists($file = database_path('migrations/2014_10_12_000000_create_users_table.php')) && ! $this->option('force')) {
+		        if ($this->confirm("The migrations/2014_10_12_000000_create_users_table.php already exists. Do you want to replace it?")) {
+			        file_put_contents(
+				        $file,
+				        file_get_contents(__DIR__.'/stubs/make/migrations/create_users_table.stub')
+			        );
+		        }
+	        }
 
         }
 
@@ -168,18 +160,18 @@ class AuthMakeCommand extends Command
         );
     }
 
-    protected function exportControllers()
+    protected function exportAppFiles()
     {
-	    foreach ($this->controllers as $key => $value) {
-		    if (file_exists($controller = app_path('Http/Controllers/'.$value)) && ! $this->option('force')) {
-			    if (! $this->confirm("The [{$value}] controller already exists. Do you want to replace it?")) {
+	    foreach ($this->appFiles as $key => $value) {
+		    if (file_exists($file = app_path($value)) && ! $this->option('force')) {
+			    if (! $this->confirm("The [{$value}] file already exists. Do you want to replace it?")) {
 				    continue;
 			    }
 		    }
 
 		    file_put_contents(
-			    $controller,
-                file_get_contents(__DIR__.'/stubs/make/controllers/'.$key)
+			    $file,
+                file_get_contents(__DIR__.'/stubs/make/'.$key)
 		    );
 
 	    }
