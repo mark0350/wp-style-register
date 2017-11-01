@@ -2,7 +2,7 @@
     "name": "markhe/wp-style-register",
     "autoload": {
         "psr-0": {
-            "App\\WpStyleRegister": "wp-style-register"
+            "WpStyleRegister": "wp-style-register"
         }
     }
 }
