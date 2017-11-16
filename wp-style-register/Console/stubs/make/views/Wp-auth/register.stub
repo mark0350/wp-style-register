@@ -10,7 +10,7 @@
                     <div class="panel-body">
                         <form class="form-horizontal" method="POST" action="{{ route('register') }}">
                             {{ csrf_field() }}
-                            <input name="invitation_token" value="{{old('invitation_token')}}">
+                            <input type="hidden" name="invitation_token" value="{{old('invitation_token')}}">
                             <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                                 <label for="loginName" class="col-md-4 control-label">name</label>
 

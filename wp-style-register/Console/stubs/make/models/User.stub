@@ -28,9 +28,6 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    function groups(){
-        return $this->belongsToMany(Group::class);
-    }
 
     public function sendPasswordResetNotification($token)
     {
